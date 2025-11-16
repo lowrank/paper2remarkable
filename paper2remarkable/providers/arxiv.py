@@ -18,9 +18,9 @@ from ._info import Informer
 
 logger = Logger()
 
-DEARXIV_TEXT_REGEX = b"ar(x|X)iv:(\d{4}\.|[\w\-]+\/)\d+v\d+(\s+\[[\w\-]+\.[\w\-]+\])?\s+\d{1,2}\s\w{3}\s\d{4}"
+DEARXIV_TEXT_REGEX = rb"ar(x|X)iv:(\d{4}\.|[\w\-]+\/)\d+v\d+(\s+\[[\w\-]+\.[\w\-]+\])?\s+\d{1,2}\s\w{3}\s\d{4}"
 DEARXIV_URI_REGEX = (
-    b"https?://ar(x|X)iv\.org\/abs\/([\w\-]+\/\d+|\d{4}\.\d{4,5})v\d+"
+    rb"https?://ar(x|X)iv\.org\/abs\/([\w\-]+\/\d+|\d{4}\.\d{4,5})v\d+"
 )
 
 
@@ -29,18 +29,18 @@ class ArxivInformer(Informer):
 
 
 class Arxiv(Provider):
-    re_abs_1 = r"https?://arxiv.org/abs/\d{4}\.\d{4,5}(v\d+)?"
-    re_pdf_1 = r"https?://arxiv.org/pdf/\d{4}\.\d{4,5}(v\d+)?(\.pdf)?"
+    re_abs_1 = r"https?://(www\.)?arxiv\.org/abs/\d{4}\.\d{4,5}(v\d+)?"
+    re_pdf_1 = r"https?://(www\.)?arxiv\.org/pdf/\d{4}\.\d{4,5}(v\d+)?(\.pdf)?"
 
-    re_abs_2 = r"https?://arxiv.org/abs/[\w\-]+/\d{7}(v\d+)?"
-    re_pdf_2 = r"https?://arxiv.org/pdf/[\w\-]+/\d{7}(v\d+)?(\.pdf)?"
+    re_abs_2 = r"https?://(www\.)?arxiv\.org/abs/[\w\-]+/\d{7}(v\d+)?"
+    re_pdf_2 = r"https?://(www\.)?arxiv\.org/pdf/[\w\-]+/\d{7}(v\d+)?(\.pdf)?"
 
     # alphaxiv patterns (mirror of arxiv)
-    re_alphaxiv_abs_1 = r"https?://alphaxiv.org/abs/\d{4}\.\d{4,5}(v\d+)?"
-    re_alphaxiv_pdf_1 = r"https?://alphaxiv.org/pdf/\d{4}\.\d{4,5}(v\d+)?(\.pdf)?"
+    re_alphaxiv_abs_1 = r"https?://(www\.)?alphaxiv\.org/abs/\d{4}\.\d{4,5}(v\d+)?"
+    re_alphaxiv_pdf_1 = r"https?://(www\.)?alphaxiv\.org/pdf/\d{4}\.\d{4,5}(v\d+)?(\.pdf)?"
 
-    re_alphaxiv_abs_2 = r"https?://alphaxiv.org/abs/[\w\-]+/\d{7}(v\d+)?"
-    re_alphaxiv_pdf_2 = r"https?://alphaxiv.org/pdf/[\w\-]+/\d{7}(v\d+)?(\.pdf)?"
+    re_alphaxiv_abs_2 = r"https?://(www\.)?alphaxiv\.org/abs/[\w\-]+/\d{7}(v\d+)?"
+    re_alphaxiv_pdf_2 = r"https?://(www\.)?alphaxiv\.org/pdf/[\w\-]+/\d{7}(v\d+)?(\.pdf)?"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -54,7 +54,11 @@ class Arxiv(Provider):
     @staticmethod
     def convert_alphaxiv_to_arxiv(url):
         """Convert alphaxiv URL to arxiv URL"""
-        return url.replace("alphaxiv.org", "arxiv.org")
+        # Handle both alphaxiv.org and www.alphaxiv.org
+        url = url.replace("alphaxiv.org", "arxiv.org")
+        # Normalize to non-www version for consistency
+        url = url.replace("www.arxiv.org", "arxiv.org")
+        return url
 
     def get_abs_pdf_urls(self, url):
         """Get the pdf and abs url from any given arXiv url"""
@@ -131,24 +135,24 @@ class Arxiv(Provider):
                     block = b"".join(current_obj)
                     # remove the text
                     block, n_subs1 = re.subn(
-                        b"\(" + DEARXIV_TEXT_REGEX + b"\)Tj",
+                        rb"\(" + DEARXIV_TEXT_REGEX + rb"\)Tj",
                         b"()Tj",
                         block,
                     )
                     # remove the url (type 1)
                     block, n_subs2 = re.subn(
-                        b"<<\n\/URI \("
+                        rb"<<\n\/URI \("
                         + DEARXIV_URI_REGEX
-                        + b"\)\n\/S /URI\n>>\n",
+                        + rb"\)\n\/S /URI\n>>\n",
                         b"",
                         block,
                     )
                     # remove the url (type 2, i.e. Jackson arXiv 0309285v2)
                     block, n_subs3 = re.subn(
-                        b"<<\n\/S \/URI\n"
-                        + b"/URI \("
+                        rb"<<\n\/S \/URI\n"
+                        + rb"/URI \("
                         + DEARXIV_URI_REGEX
-                        + b"\)\n>>\n",
+                        + rb"\)\n>>\n",
                         b"",
                         block,
                     )

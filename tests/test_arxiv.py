@@ -144,6 +144,21 @@ class TestArxiv(unittest.TestCase):
         self.assertEqual(abs_url, "https://arxiv.org/abs/2003.06222")
         self.assertEqual(pdf_url, "https://arxiv.org/pdf/2003.06222.pdf")
 
+    def test_alphaxiv_with_www_validation(self):
+        url = "https://www.alphaxiv.org/abs/2003.06222"
+        self.assertTrue(Arxiv.validate(url))
+
+    def test_alphaxiv_with_www_get_abs_pdf_urls(self):
+        alphaxiv_url = "https://www.alphaxiv.org/abs/2003.06222"
+        prov = Arxiv(upload=False)
+        abs_url, pdf_url = prov.get_abs_pdf_urls(alphaxiv_url)
+        self.assertEqual(abs_url, "https://arxiv.org/abs/2003.06222")
+        self.assertEqual(pdf_url, "https://arxiv.org/pdf/2003.06222.pdf")
+
+    def test_arxiv_with_www_validation(self):
+        url = "https://www.arxiv.org/abs/2003.06222"
+        self.assertTrue(Arxiv.validate(url))
+
 
 if __name__ == "__main__":
     unittest.main()
