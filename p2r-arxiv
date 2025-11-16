@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# p2r-arxiv - Download arXiv papers to reMarkable organized by current date
+#
+# Usage: p2r-arxiv <arxiv_url>
+# Example: p2r-arxiv https://arxiv.org/abs/2003.06222
+# Papers are organized into /Reading/Arxiv/YYYY.MM based on today's date
+
+set -euo pipefail
+
+# Check if URL argument is provided
+if [ $# -eq 0 ]; then
+    echo "Usage: p2r-arxiv <arxiv_or_alphaxiv_url>"
+    echo ""
+    echo "Examples:"
+    echo "  p2r-arxiv https://arxiv.org/abs/2003.06222"
+    echo "  p2r-arxiv https://alphaxiv.org/abs/2003.06222"
+    echo "  p2r-arxiv https://arxiv.org/pdf/1811.11242.pdf"
+    echo ""
+    echo "Papers are organized into /Reading/Arxiv/YYYY.MM based on today's date"
+    exit 1
+fi
+
+URL="$1"
+
+# Get today's year and month
+YEAR=$(date +%Y)
+MONTH=$(date +%m)
+
+# Construct the remarkable path
+REMARKABLE_PATH="/Reading/Arxiv/${YEAR}.${MONTH}"
+
+echo "Organizing to: $REMARKABLE_PATH"
+echo "Running: p2r -p \"$REMARKABLE_PATH\" -k -v \"$URL\""
+echo ""
+
+# Run p2r with the constructed path
+p2r -p "$REMARKABLE_PATH" -k -v "$URL"
