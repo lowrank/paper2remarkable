@@ -34,6 +34,7 @@ papers easier (just use the `-n` flag).
 reMarkable from any of the following sources:
 
 * [arXiv](https://arxiv.org/)
+* [alphaXiv](https://alphaxiv.org/)
 * [ACL Web](https://www.aclweb.org/anthology/)
 * [ACM Digital Library](https://dl.acm.org/dl.cfm)
 * [CVF](https://openaccess.thecvf.com/menu)
