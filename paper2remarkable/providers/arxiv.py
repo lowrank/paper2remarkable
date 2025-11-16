@@ -35,6 +35,13 @@ class Arxiv(Provider):
     re_abs_2 = r"https?://arxiv.org/abs/[\w\-]+/\d{7}(v\d+)?"
     re_pdf_2 = r"https?://arxiv.org/pdf/[\w\-]+/\d{7}(v\d+)?(\.pdf)?"
 
+    # alphaxiv patterns (mirror of arxiv)
+    re_alphaxiv_abs_1 = r"https?://alphaxiv.org/abs/\d{4}\.\d{4,5}(v\d+)?"
+    re_alphaxiv_pdf_1 = r"https?://alphaxiv.org/pdf/\d{4}\.\d{4,5}(v\d+)?(\.pdf)?"
+
+    re_alphaxiv_abs_2 = r"https?://alphaxiv.org/abs/[\w\-]+/\d{7}(v\d+)?"
+    re_alphaxiv_pdf_2 = r"https?://alphaxiv.org/pdf/[\w\-]+/\d{7}(v\d+)?(\.pdf)?"
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.informer = ArxivInformer()
@@ -44,8 +51,17 @@ class Arxiv(Provider):
             if format in "pdf ps".split():
                 self.operations[format].insert(0, ("dearxiv", self.dearxiv))
 
+    @staticmethod
+    def convert_alphaxiv_to_arxiv(url):
+        """Convert alphaxiv URL to arxiv URL"""
+        return url.replace("alphaxiv.org", "arxiv.org")
+
     def get_abs_pdf_urls(self, url):
         """Get the pdf and abs url from any given arXiv url"""
+        # Convert alphaxiv URLs to arxiv URLs first
+        if "alphaxiv.org" in url:
+            url = self.convert_alphaxiv_to_arxiv(url)
+        
         if "?" in url:
             url = url[: url.index("?")]
         if re.match(self.re_abs_1, url) or re.match(self.re_abs_2, url):
@@ -62,12 +78,16 @@ class Arxiv(Provider):
 
     @staticmethod
     def validate(src):
-        """Check if the url is to an arXiv page."""
+        """Check if the url is to an arXiv or alphaxiv page."""
         return (
             re.match(Arxiv.re_abs_1, src)
             or re.match(Arxiv.re_pdf_1, src)
             or re.match(Arxiv.re_abs_2, src)
             or re.match(Arxiv.re_pdf_2, src)
+            or re.match(Arxiv.re_alphaxiv_abs_1, src)
+            or re.match(Arxiv.re_alphaxiv_pdf_1, src)
+            or re.match(Arxiv.re_alphaxiv_abs_2, src)
+            or re.match(Arxiv.re_alphaxiv_pdf_2, src)
         )
 
     def dearxiv(self, input_file):

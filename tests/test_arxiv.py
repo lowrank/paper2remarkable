@@ -114,6 +114,36 @@ class TestArxiv(unittest.TestCase):
             b"/URI (http://arxiv.org/abs/astro-ph/9207001v1)", data
         )
 
+    def test_alphaxiv_validation_abs_1(self):
+        url = "https://alphaxiv.org/abs/2003.06222"
+        self.assertTrue(Arxiv.validate(url))
+
+    def test_alphaxiv_validation_pdf_1(self):
+        url = "https://alphaxiv.org/pdf/2003.06222.pdf"
+        self.assertTrue(Arxiv.validate(url))
+
+    def test_alphaxiv_validation_abs_2(self):
+        url = "https://alphaxiv.org/abs/physics/0605197v1"
+        self.assertTrue(Arxiv.validate(url))
+
+    def test_alphaxiv_validation_pdf_2(self):
+        url = "https://alphaxiv.org/pdf/physics/0605197v1.pdf"
+        self.assertTrue(Arxiv.validate(url))
+
+    def test_alphaxiv_to_arxiv_conversion(self):
+        alphaxiv_url = "https://alphaxiv.org/abs/2003.06222"
+        expected_arxiv_url = "https://arxiv.org/abs/2003.06222"
+        self.assertEqual(
+            Arxiv.convert_alphaxiv_to_arxiv(alphaxiv_url), expected_arxiv_url
+        )
+
+    def test_alphaxiv_get_abs_pdf_urls(self):
+        alphaxiv_url = "https://alphaxiv.org/abs/2003.06222"
+        prov = Arxiv(upload=False)
+        abs_url, pdf_url = prov.get_abs_pdf_urls(alphaxiv_url)
+        self.assertEqual(abs_url, "https://arxiv.org/abs/2003.06222")
+        self.assertEqual(pdf_url, "https://arxiv.org/pdf/2003.06222.pdf")
+
 
 if __name__ == "__main__":
     unittest.main()
